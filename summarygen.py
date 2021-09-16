@@ -6,7 +6,7 @@ import numpy as np
 ####----Compatibility----####
 #compatible with RSeQC v4.0.0
 #must include 7 input files in correct order
-#sample input: python summarygen.py {SAMPLENAME}.Aligned.sortedByCoord.out.summary.txt {SAMPLENAME}_junction_annotation_summary_more.txt rseqc_bam_stat_report.txt {SAMPLENAME}.STAR.Log.final.out {SAMPLENAME}_infer_experiment.txt {SAMPLENAME}_inner_distance.txt {SAMPLENAME}_read_distribution.txt
+#sample input: python summarygen.py {SAMPLENAME}.Aligned.sortedByCoord.out.summary.txt {SAMPLENAME}_junction_annotation_summary_more.txt rseqc_bam_stat_report.txt {SAMPLENAME}.STAR.Log.final.out {SAMPLENAME}_infer_experiment.txt {SAMPLENAME}_inner_distance.txt {SAMPLENAME}_read_distribution.txt {SAMPLENAME}_intron_summary.txt
 #tin.py                 -- {SAMPLENAME}.Aligned.sortedByCoord.out.summary.txt
 #junction_annotation.py -- {SAMPLENAME}_junction_annotation_summary_more.txt
 #bam_stat.py            -- rseqc_bam_stat_report.txt (sample specific)
@@ -14,6 +14,7 @@ import numpy as np
 #infer_experiment.py    -- {SAMPLENAME}_infer_experiment.txt
 #inner_distance.py      -- {SAMPLENAME}_inner_distance.txt
 #read_distribution.py   -- {SAMPLENAME}_read_distribution.txt
+#splicing deficiency    -- {SAMPLENAME}_intron_summary.txt
 
 
 ####----Input----####
@@ -24,9 +25,7 @@ logfin=open(sys.argv[4], 'r')
 inferexp=open(sys.argv[5], 'r')
 innerdist=open(sys.argv[6], 'r')
 readdist=open(sys.argv[7], 'r')
-
 intron=open(sys.argv[8], 'r')
-
 outfile=open("summary_row_out.tsv", 'w')
 outfile2=open("summary_col_out.tsv", 'w')
 
