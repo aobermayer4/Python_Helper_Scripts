@@ -4,7 +4,9 @@ import sys
 import numpy as np
 
 ####----Compatibility----####
+
 #compatible with RSeQC v4.0.0
+
 #must include 7 input files in correct order
 #sample input: python summarygen.py {SAMPLENAME}.Aligned.sortedByCoord.out.summary.txt {SAMPLENAME}_junction_annotation_summary_more.txt rseqc_bam_stat_report.txt {SAMPLENAME}.STAR.Log.final.out {SAMPLENAME}_infer_experiment.txt {SAMPLENAME}_inner_distance.txt {SAMPLENAME}_read_distribution.txt {SAMPLENAME}_intron_summary.txt
 #tin.py                 -- {SAMPLENAME}.Aligned.sortedByCoord.out.summary.txt
@@ -28,6 +30,7 @@ readdist=open(sys.argv[7], 'r')
 intron=open(sys.argv[8], 'r')
 outfile=open("summary_row_out.tsv", 'w')
 outfile2=open("summary_col_out.tsv", 'w')
+
 
 
 ####----TIN file----####
@@ -56,6 +59,7 @@ for line in juncanno.read().splitlines()[5:]:
 		val=line.split('\t')[-1]
 		mainheader=np.append(mainheader,[head])
 		mainstats=np.append(mainstats,[val])
+
 
 
 ####----BAM stat report----####
@@ -92,6 +96,7 @@ for line in logfin.read().splitlines()[5:] :
 		mainstats=np.append(mainstats,[val])
 
 
+
 ####----infer experiment----####
 failed=inferexp.read().splitlines()[3]
 failh=failed.replace(' ','_').split(':')[0]
@@ -108,6 +113,7 @@ mainheader=np.append(mainheader,[failh,frowh,revh])
 mainstats=np.append(mainstats,[failv,frowv,revv])
 
 
+
 ####----inner distance----####
 indis=innerdist.read().splitlines()[1]
 indis=indis.split('\t')
@@ -116,6 +122,7 @@ indismed=indis[2]
 indissd=indis[3]
 mainheader=np.append(mainheader,["inner_distance_mean","inner_distance_median","inner_distance_sd"])
 mainstats=np.append(mainstats,[indismean,indismed,indissd])
+
 
 
 ####----read distribution----####
@@ -128,6 +135,7 @@ for line in readdist.read().splitlines()[5:14]:
 	mainstats=np.append(mainstats,[valtot,valtag])
 
 
+
 ####----intron summary----####
 intrh=intron.read().splitlines()[0]
 intrh=intrh.replace(' ','_').split('\t')
@@ -138,6 +146,8 @@ intrv=intron.read().splitlines()[1]
 intrv=intrv.split('\t')
 intrvperc=float(intrv[1])/100
 mainstats=np.append(mainstats,[intrvperc,intrv[2],intrv[3],intrv[4],intrv[5]])
+
+
 
 ####----remove/replace certain special characters----####
 mainheader=[s.replace("'","_") for s in mainheader] #safe
@@ -168,6 +178,7 @@ for i,j in enumerate(mainheader):
 		mainheader[i]='NA'
 	if j == '0':
 		mainheader[i]='NA'
+
 
 
 ####----Output----####
