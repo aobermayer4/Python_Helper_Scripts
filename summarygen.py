@@ -24,6 +24,9 @@ logfin=open(sys.argv[4], 'r')
 inferexp=open(sys.argv[5], 'r')
 innerdist=open(sys.argv[6], 'r')
 readdist=open(sys.argv[7], 'r')
+
+intron=open(sys.argv[8], 'r')
+
 outfile=open("summary_row_out.tsv", 'w')
 outfile2=open("summary_col_out.tsv", 'w')
 
@@ -125,6 +128,17 @@ for line in readdist.read().splitlines()[5:14]:
 	mainheader=np.append(mainheader,[headtot,headtag])
 	mainstats=np.append(mainstats,[valtot,valtag])
 
+
+####----intron summary----####
+intrh=intron.read().splitlines()[0]
+intrh=intrh.replace(' ','_').split('\t')
+intrh1n=intrh[1].replace('%','Fraction_')
+mainheader=np.append(mainheader,[intrh1n,intrh[2],intrh[3],intrh[4],intrh[5]])
+intron.seek(0)
+intrv=intron.read().splitlines()[1]
+intrv=intrv.split('\t')
+intrvperc=float(intrv[1])/100
+mainstats=np.append(mainstats,[intrvperc,intrv[2],intrv[3],intrv[4],intrv[5]])
 
 ####----remove/replace certain special characters----####
 mainheader=[s.replace("'","_") for s in mainheader] #safe
