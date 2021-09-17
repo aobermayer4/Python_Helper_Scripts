@@ -2,6 +2,7 @@
 
 import sys
 import numpy as np
+import argparse
 
 ####----Compatibility----####
 
@@ -19,15 +20,28 @@ import numpy as np
 #splicing deficiency    -- {SAMPLENAME}_intron_summary.txt
 
 
+parser=argparse.ArgumentParser(description='Combine summary files to generate global sample summary.')
+
+parser.add_argument('-t','--tin', default='tinmiss', type=argparse.FileType('r'), metavar='',help='path to TIN summary file')
+parser.add_argument('-j','--juncanno', default='juncannomiss', type=argparse.FileType('r'), metavar='', help='path to junction annotation summary file')
+parser.add_argument('-b','--bamstat', default='bamstatmiss', type=argparse.FileType('r'), metavar='', help='path to bam stat summary file')
+parser.add_argument('-l','--logfin', default='logmiss', type=argparse.FileType('r'), metavar='', help='path to STAR log final output file')
+parser.add_argument('-e','--inferexp', default='inferexpmiss', type=argparse.FileType('r'), metavar='', help='path to infer experiment summary file')
+parser.add_argument('-d','--innerdist', default='inndistmiss', type=argparse.FileType('r'), metavar='', help='path to inner distance summary file')
+parser.add_argument('-r','--readdist', default='readdistmiss', type=argparse.FileType('r'), metavar='', help='path to read distribution summary file')
+parser.add_argument('-n','--intron', default='intronmiss', type=argparse.FileType('r'), metavar='', help='path to intron summary file')
+
+args=parser.parse_args()
+
 ####----Input----####
-tin=open(sys.argv[1], 'r')
-juncanno=open(sys.argv[2], 'r')
-bamstat=open(sys.argv[3], 'r')
-logfin=open(sys.argv[4], 'r')
-inferexp=open(sys.argv[5], 'r')
-innerdist=open(sys.argv[6], 'r')
-readdist=open(sys.argv[7], 'r')
-intron=open(sys.argv[8], 'r')
+tin=args.tin
+juncanno=args.juncanno
+bamstat=args.bamstat
+logfin=args.logfin
+inferexp=args.inferexp
+innerdist=args.innerdist
+readdist=args.readdist
+intron=args.intron
 outfile=open("summary_row_out.tsv", 'w')
 outfile2=open("summary_col_out.tsv", 'w')
 
