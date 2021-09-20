@@ -30,7 +30,8 @@ parser.add_argument('-l','--logfin', type=argparse.FileType('r'), const=1, nargs
 parser.add_argument('-e','--inferexp', type=argparse.FileType('r'), const=1, nargs='?', required=False, default=1, metavar='', help='path to infer experiment summary file')
 parser.add_argument('-d','--innerdist', type=argparse.FileType('r'), const=1, nargs='?', required=False, default=1, metavar='', help='path to inner distance summary file')
 parser.add_argument('-r','--readdist', type=argparse.FileType('r'), const=1, nargs='?', required=False, default=1, metavar='', help='path to read distribution summary file')
-parser.add_argument('-n','--intron', type=argparse.FileType('r'), const=1, nargs='?', required=False, default=1,metavar='', help='path to intron summary file')
+parser.add_argument('-n','--intron', type=argparse.FileType('r'), const=1, nargs='?', required=False, default=1, metavar='', help='path to intron summary file')
+parser.add_argument('-s','--samplename', required=False, nargs='?', default=1, metavar='', help='Sample name input to identify output file')
 parser.add_argument('-R','--row', action='store_true', required=False, help='Outfile given in row format, if not specified both row and column file formats given')
 parser.add_argument('-C','--column', action='store_true', required=False, help='Outfile given in column format, if not specified both row and column file formats given')
 
@@ -45,13 +46,7 @@ inferexp=args.inferexp
 innerdist=args.innerdist
 readdist=args.readdist
 intron=args.intron
-if args.row:
-	outfile=open("global_summary_row_out.tsv", 'w')
-if args.column:
-	outfile2=open("global_summary_col_out.tsv", 'w')
-if (args.row == False) and (args.column == False):
-	outfile=open("global_summary_row_out.tsv", 'w')
-	outfile2=open("global_summary_col_out.tsv", 'w')
+samp=args.samplename
 
 
 mainheader=np.array(['init'])
@@ -66,7 +61,7 @@ else:
 	TINmean=tinheader[1]
 	TINmed=tinheader[2]
 	TINsd=tinheader[3]
-	mainheader=np.array(['Sample',TINmean,TINmed,TINsd])
+	mainheader=np.append(mainheader, ['Sample',TINmean,TINmed,TINsd])
 	tin.seek(0)
 	tinstat=tin.read().splitlines()[1]
 	tinstat2=tinstat.split('\t')
@@ -74,20 +69,24 @@ else:
 	TINmeannum=tinstat2[1]
 	TINmednum=tinstat2[2]
 	TINsdnum=tinstat2[3]
-	mainstats=np.array([sampname,TINmeannum,TINmednum,TINsdnum])
+	mainstats=np.append(mainstats, [sampname,TINmeannum,TINmednum,TINsdnum])
 
 
 
 ####----junction annotation----####
+found_sect = False
 if juncanno == 1:
 	print("Junction Annotation summary file missing")
 else:
-	for line in juncanno.read().splitlines()[5:]:
-		if ':' in line:
-			head=line.replace(' ','_').split('\t')[0].split(':')[0]
-			val=line.split('\t')[-1]
-			mainheader=np.append(mainheader,[head])
-			mainstats=np.append(mainstats,[val])
+	for line in juncanno.read().splitlines():
+		if line.startswith('='):
+			found_sect = True
+		elif found_sect:
+			if ':' in line:
+				head=line.replace(' ','_').split('\t')[0].split(':')[0]
+				val=line.split('\t')[-1]
+				mainheader=np.append(mainheader,[head])
+				mainstats=np.append(mainstats,[val])
 
 
 
@@ -105,7 +104,7 @@ else:
 			val=line.replace(' ','').split(':')[-1]
 			mainheader=np.append(mainheader,[head])
 			mainstats=np.append(mainstats,[val])
-		elif 'Non primary hits' in line:
+		elif 'Non primary hits' in line: #special instance for missing semicolon in file
 			head='_'.join(line.split(' ')[0:3])
 			val=line.split(' ')[-1]
 			mainheader=np.append(mainheader,[head])
@@ -158,6 +157,7 @@ if innerdist == 1:
 else:
 	indis=innerdist.read().splitlines()[1]
 	indis=indis.split('\t')
+	sampname2='_'.join(indis[0].split('_')[0:5])
 	indismean=indis[1]
 	indismed=indis[2]
 	indissd=indis[3]
@@ -194,6 +194,7 @@ else:
 	intrv=intrv.split('\t')
 	intrvperc=float(intrv[1])/100
 	mainstats=np.append(mainstats,[intrvperc,intrv[2],intrv[3],intrv[4],intrv[5]])
+	sampname3=intrv[0].split('.')[0]
 
 
 
@@ -231,8 +232,49 @@ mainheader=np.delete(mainheader, [0])
 mainstats=np.delete(mainstats, [0])
 
 
-
 ####----Output----####
+if samp == 1: #user did not give sample name
+	if 'sampname' in locals(): #get samplename from TIN file
+		if args.row:
+			outfile=open("".join(sampname+"_summary_row.tsv"), 'w')
+		if args.column:
+			outfile2=open("".join(sampname+"_summary_col.tsv"), 'w')
+		if (args.row == False) and (args.column == False):
+			outfile=open("".join(sampname+"_summary_row.tsv"), 'w')
+			outfile2=open("".join(sampname+"_summary_col.tsv"), 'w')
+	elif 'sampname2' in locals(): #get samplename from inner distance file
+		if args.row:
+			outfile=open("".join(sampname2+"_summary_row.tsv"), 'w')
+		if args.column:
+			outfile2=open("".join(sampname2+"_summary_col.tsv"), 'w')
+		if (args.row == False) and (args.column == False):
+			outfile=open("".join(sampname2+"_summary_row.tsv"), 'w')
+			outfile2=open("".join(sampname2+"_summary_col.tsv"), 'w')
+	elif 'sampname3' in locals(): #get samplename from intron file
+		if args.row:
+			outfile=open("".join(sampname3+"_summary_row.tsv"), 'w')
+		if args.column:
+			outfile2=open("".join(sampname3+"_summary_col.tsv"), 'w')
+		if (args.row == False) and (args.column == False):
+			outfile=open("".join(sampname3+"_summary_row.tsv"), 'w')
+			outfile2=open("".join(sampname3+"_summary_col.tsv"), 'w')
+	else: #generic sample name
+		if args.row:
+			outfile=open("sample_summary_row.tsv", 'w')
+		if args.column:
+			outfile2=open("sample_summary_col.tsv", 'w')
+		if (args.row == False) and (args.column == False):
+			outfile=open("sample_summary_row.tsv", 'w')
+			outfile2=open("sample_summary_col.tsv", 'w')
+else: #user given sample name
+	if args.row:
+		outfile=open("".join(samp+"_summary_row.tsv"), 'w')
+	if args.column:
+		outfile2=open("".join(samp+"_summary_col.tsv"), 'w')
+	if (args.row == False) and (args.column == False):
+		outfile=open("".join(samp+"_summary_row.tsv"), 'w')
+		outfile2=open("".join(samp+"_summary_col.tsv"), 'w')
+
 ## Write numpy array to tab delimited file
 #as rows
 if args.row:
